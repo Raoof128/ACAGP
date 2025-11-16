@@ -47,7 +47,9 @@ async def lifespan(app: FastAPI):
     logger.info(f"Debug mode: {settings.debug}")
 
     # Initialize database connection pool
-    # await init_db()
+    from database import init_db, close_db
+    await init_db()
+    logger.info("Database initialized")
 
     # Initialize Prometheus metrics
     if settings.prometheus_enabled:
@@ -64,7 +66,7 @@ async def lifespan(app: FastAPI):
 
     # Shutdown
     logger.info("Shutting down application")
-    # await close_db()
+    await close_db()
     logger.info("Application shutdown complete")
 
 
@@ -156,35 +158,14 @@ async def readiness_check() -> Dict[str, str]:
     }
 
 
-# API Router imports (to be created)
-# from api.v1 import compliance, reports, organizations, users, assessments
+# API Router imports
+from api.v1 import api_router
 
 # Include API routers
-# app.include_router(
-#     compliance.router,
-#     prefix=f"{settings.api_prefix}/compliance",
-#     tags=["Compliance"]
-# )
-# app.include_router(
-#     reports.router,
-#     prefix=f"{settings.api_prefix}/reports",
-#     tags=["Reports"]
-# )
-# app.include_router(
-#     organizations.router,
-#     prefix=f"{settings.api_prefix}/organizations",
-#     tags=["Organizations"]
-# )
-# app.include_router(
-#     users.router,
-#     prefix=f"{settings.api_prefix}/users",
-#     tags=["Users"]
-# )
-# app.include_router(
-#     assessments.router,
-#     prefix=f"{settings.api_prefix}/assessments",
-#     tags=["Assessments"]
-# )
+app.include_router(
+    api_router,
+    prefix=settings.api_prefix
+)
 
 
 if __name__ == "__main__":

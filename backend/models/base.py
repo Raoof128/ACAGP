@@ -2,11 +2,11 @@
 Base SQLAlchemy model and database configuration.
 """
 
-from datetime import datetime
-from typing import Any
+from datetime import datetime, timezone
+from typing import Any, Dict
 from uuid import uuid4
 
-from sqlalchemy import Column, DateTime, MetaData
+from sqlalchemy import Column, DateTime, MetaData, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import declared_attr
@@ -41,18 +41,18 @@ class BaseModel:
 
     created_at = Column(
         DateTime(timezone=True),
-        default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False,
     )
 
     updated_at = Column(
         DateTime(timezone=True),
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        server_default=func.now(),
+        onupdate=func.now(),
         nullable=False,
     )
 
-    def dict(self) -> dict[str, Any]:
+    def to_dict(self) -> Dict[str, Any]:
         """Convert model to dictionary."""
         return {
             column.name: getattr(self, column.name)
